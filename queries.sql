@@ -17,6 +17,7 @@ select m.title,
     sc.name as screen_name,
     sc.class_type,
     count(st.seat_number like 'A%') as available_seats
+    
     from movies m
 join shows sh
     on m.movie_id=sh.movie_id
@@ -31,6 +32,7 @@ where time(sh.show_datetime) between '12:00:00' and '17:00:00'
     and st.seat_number like 'A%'
     and m.status='Now Showing'
 group by sh.show_id 
+having count(st.seat_number like 'A%')>=2
 order by m.title
 ;
 
