@@ -12,12 +12,12 @@ seats > se
 
 select m.title,
     ss.show_id,
-    sh.show_datetime,
-    sc.screen_id,
+    date(sh.show_datetime) as show_date,
+    time(sh.show_datetime) as show_time,
     sc.name as screen_name,
     sc.class_type,
     count(st.seat_number like 'A%') as available_seats
-    
+
     from movies m
 join shows sh
     on m.movie_id=sh.movie_id
