@@ -90,7 +90,7 @@ update memberships set current_points=current_points+1000
 
 
 
-
+/* JUNE 3 SQL QUERIES*/
 
 select * from movies;
 
@@ -159,3 +159,105 @@ select genre,count(*),avg(rating) as count from movies group by genre order by a
 
 
 select user_id,count(*) as booking_count from bookings group by user_id;
+
+
+
+
+
+
+
+/* JUNE 4 SQL QUERIES*/
+
+SELECT m.title,m.genre,r.content,r.rating FROM MOVIES m
+    Inner JOIN reviews r 
+    ON m.movie_id=r.movie_id
+    WHERE r.rating>(select AVG(rating) from reviews)
+    group by m.movie_id
+    order by genre;
+
+SELECT 
+    u.user_id,u.email,u.phone, 
+    b.show_id,b.booking_datetime,
+    m.title,m.status
+    from users u 
+    JOIN bookings b ON
+        b.user_id=u.user_id
+    JOIN shows sh ON
+        sh.show_id=b.show_id
+    JOIN movies m ON
+        m.movie_id=sh.movie_id
+    where u.user_id in (SELECT user_id from bookings) 
+    and m.status='Now Showing';
+
+select * from users 
+    WHERE user_id in 
+    (SELECT user_id from bookings 
+        WHERE show_id in (
+            select show_id from shows 
+                WHERE movie_id in (
+                    SELECT movie_id from movies where status='Now Showing')));
+
+select title from movies
+    where movie_id in (
+        SELECT movie_id from reviews
+        group by movie_id
+        HAVING count(*)>=(
+            SELECT count(*) from reviews 
+                WHERE movie_id in (
+                    select movie_id from movies 
+                        where genre='Action')
+                GROUP BY movie_id));
+
+
+select avg(select count(rating) as r_count from reviews group by movie_id) from reviews;
+
+select count(rating) as r_count from reviews group by movie_id;
+
+
+SELECT m.title
+FROM movies m
+JOIN reviews r
+    ON m.movie_id = r.movie_id
+GROUP BY m.movie_id
+HAVING COUNT(*) >= (
+    SELECT AVG(review_count)
+    FROM (
+        SELECT COUNT(*) AS review_count
+        FROM reviews
+        GROUP BY movie_id
+    ) t
+);
+
+
+SELECT title FROM movies m where EXISTS(SELECT 1 from reviews r where r.movie_id=m.movie_id);
+
+select title from movies where movie_id not in (SELECT movie_id from reviews);
+
+select user_id,name, email,phone from users 
+where user_id in (select user_id from bookings WHERE show_id in 
+                        (select show_id from shows where movie_id IN
+                            (select movie_id from reviews where rating>2)));
+
+
+SELECT title from movies where genre in 
+(select genre from movies GROUP by genre HAVING avg(rating)>2);
+
+select m.title from movies m
+join reviews r ON
+m.movie_id=r.movie_id
+where m.genre in (select m2.genre from movies m2
+                    join reviews r2 ON
+                    m2.movie_id=r2.movie_id
+                     group by m2.genre having avg(r2.rating)>=2 )
+group by m.title;
+
+
+select u.user_id,u.name,u.email from users u 
+JOIN bookings b 
+ON b.user_id=u.user_id
+JOIN shows s 
+ON s.show_id=b.show_id
+JOIN reviews r 
+ON r.movie_id=s.movie_id
+WHERE r.movie_id in 
+(select movie_id from reviews group by movie_id having count(*)>20);
