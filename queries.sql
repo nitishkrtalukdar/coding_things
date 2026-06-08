@@ -261,3 +261,15 @@ JOIN reviews r
 ON r.movie_id=s.movie_id
 WHERE r.movie_id in 
 (select movie_id from reviews group by movie_id having count(*)>20);
+
+select m.title,s.show_datetime from movies m
+inner join shows s on s.movie_id=m.movie_id;
+
+select user_id,name,email from users
+where user_id in (select user_id from bookings);
+
+
+
+select * from users u 
+join memberships m 
+on m.user_id=u.user_id;
